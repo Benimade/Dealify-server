@@ -19,7 +19,7 @@ export async function getProducts(keyword) {
   console.log("Raw response from AgentRouter:", JSON.stringify(json, null, 2));
 
 
-  const url = `https://agentrouter.org/api/proxy/ali?keywords=${encodeURIComponent(keyword)}&page_no=1&page_size=20&app_key=${process.env.ALIEXPRESS_APP_KEY}&affiliate_id=${process.env.AFFILIATE_TRUE_KEY}`;
+ const url = `https://api.agentrouter.org/v1/route?target=ali&keywords=${encodeURIComponent(keyword)}&page_no=1&page_size=20&app_key=${process.env.ALIEXPRESS_APP_KEY}&affiliate_id=${process.env.AFFILIATE_TRUE_KEY}`;
 
   let response;
   try {
