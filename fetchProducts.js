@@ -6,7 +6,7 @@ dotenv.config();
 
 export default async function fetchProducts(keyword) {
   try {
-  const apiUrl = "https://api.aliexpress.com/openapi/param2/2/aliexpress.open/api.listPromotionProduct/";
+const apiUrl = "https://api.aliexpress.com/openapi/param2/2/aliexpress.open/api.listPromotionProduct/";
 
     const params = new URLSearchParams({
       app_key: process.env.APP_KEY,
