@@ -5,40 +5,38 @@ dotenv.config();
 
 async function fetchProducts(keyword = "phone") {
   try {
-    const url = `https://aliexpress-datahub.p.rapidapi.com/item_search?query=${encodeURIComponent(keyword)}&page=1`;
+    const url = `https://aliexpress-business-api.p.rapidapi.com/affiliate-search.php?query=${encodeURIComponent(keyword)}&page=1`;
 
     const response = await fetch(url, {
       method: "GET",
       headers: {
-        "x-rapidapi-host": "aliexpress-datahub.p.rapidapi.com",
+        "x-rapidapi-host": "aliexpress-business-api.p.rapidapi.com",
         "x-rapidapi-key": process.env.RAPIDAPI_KEY,
       },
     });
 
     const text = await response.text();
 
-    // 🔍 تحقق إن كانت الاستجابة HTML (خطأ)
+    // 🧠 تحقق إذا RapidAPI أرجع HTML بدل JSON (علامة خطأ)
     if (text.startsWith("<!DOCTYPE html>") || text.startsWith("<html")) {
-      console.error("❌ RapidAPI returned HTML instead of JSON. Check your endpoint or API key.");
-      return {
-        success: false,
-        message: "RapidAPI returned HTML (invalid endpoint or key)",
-        products: [],
-      };
+      console.error("❌ RapidAPI returned HTML instead of JSON. Check the endpoint or key.");
+      return { success: false, message: "RapidAPI returned HTML (invalid endpoint or key)", products: [] };
     }
 
     const data = JSON.parse(text);
 
-    if (!data || !data.result || !data.result.items) {
+    // 🔍 تحقق أن البيانات موجودة
+    if (!data || !data.result || !Array.isArray(data.result)) {
       return { success: false, message: "No products found", products: [] };
     }
 
-    const products = data.result.items.map((item) => ({
-      id: item.item_id,
-      title: item.title,
-      price: item.sale_price,
-      image: item.image,
-      url: item.detail_url,
+    // 🔧 استخراج المنتجات
+    const products = data.result.map((p) => ({
+      id: p.product_id || p.item_id,
+      title: p.product_title,
+      price: p.sale_price,
+      image: p.product_main_image_url || p.image_url,
+      url: p.product_detail_url,
     }));
 
     return { success: true, products };
