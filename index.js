@@ -1,40 +1,31 @@
 
 import express from "express";
 import dotenv from "dotenv";
-import { getProducts } from "./fetchProducts.js";
-import { trackShipment } from "./trackShipment.js";
+import cors from "cors";
+import fetchProducts from "./fetchProducts.js";
 
 dotenv.config();
-const app = express();
-const PORT = process.env.PORT || 3000;
 
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+// ✅ المسار الأساسي
 app.get("/", (req, res) => {
-  res.json({ success: true, message: "Dealify server running (no AgentRouter)" });
+  res.json({ message: "Dealify API is running 🚀" });
 });
 
+// ✅ مسار جلب المنتجات
 app.get("/products", async (req, res) => {
   try {
-    const keyword = req.query.keyword || "electronics";
-    const products = await getProducts(keyword);
+    const keyword = req.query.keyword || "phone";
+    const products = await fetchProducts(keyword);
     res.json({ success: true, products });
-  } catch (err) {
-    console.error("Error in /products:", err);
-    res.status(500).json({ success: false, message: err.message });
+  } catch (error) {
+    console.error("❌ Fetch error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
-app.get("/track", async (req, res) => {
-  try {
-    const { trackingNumber, courier } = req.query;
-    if (!trackingNumber || !courier) {
-      return res.status(400).json({ success: false, message: "trackingNumber and courier are required" });
-    }
-    const result = await trackShipment(trackingNumber, courier);
-    res.json({ success: true, result });
-  } catch (err) {
-    console.error("Error in /track:", err);
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
