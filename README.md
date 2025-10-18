@@ -1,16 +1,9 @@
 
-# Dealify
+# Dealify (No AgentRouter)
 
-Node.js server fetching AliExpress products via AgentRouter, supporting Affiliate links and AfterShip tracking.
+نسخة Dealify بدون AgentRouter ✅  
+تجلب المنتجات من AliExpress مباشرة عبر scraping بسيط، وتدعم تتبع الشحن عبر AfterShip.
 
-## Setup
-
-1. Copy `.env.example` to `.env` and fill your keys.
-2. Run:
-   ```
-   npm install
-   npm start
-   ```
-3. Deploy on Render:
-   - New → Web Service → link your GitHub
-   - Start command: `npm install && npm start`
+### إعداد البيئة
+1. انسخ `.env.example` إلى `.env`
+2. عدّل القيم:
