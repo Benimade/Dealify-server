@@ -5,7 +5,7 @@ dotenv.config();
 
 async function fetchProducts(keyword = "phone") {
   try {
-    const url = `https://aliexpress-business-api.p.rapidapi.com/affiliate-search.php?query=${encodeURIComponent(keyword)}&page=1`;
+    const url = `https://aliexpress-business-api.p.rapidapi.com/affiliate-products-by-keyword.php?keyword=${encodeURIComponent(keyword)}&page=1&language=en&currency=USD`;
 
     const response = await fetch(url, {
       method: "GET",
@@ -17,20 +17,19 @@ async function fetchProducts(keyword = "phone") {
 
     const text = await response.text();
 
-    // 🧠 تحقق إذا RapidAPI أرجع HTML بدل JSON (علامة خطأ)
+    // في حالة أعاد السيرفر HTML بدل JSON (خطأ مفتاح API أو سيرفر)
     if (text.startsWith("<!DOCTYPE html>") || text.startsWith("<html")) {
-      console.error("❌ RapidAPI returned HTML instead of JSON. Check the endpoint or key.");
-      return { success: false, message: "RapidAPI returned HTML (invalid endpoint or key)", products: [] };
+      console.error("❌ RapidAPI returned HTML instead of JSON");
+      return [];
     }
 
     const data = JSON.parse(text);
 
-    // 🔍 تحقق أن البيانات موجودة
     if (!data || !data.result || !Array.isArray(data.result)) {
-      return { success: false, message: "No products found", products: [] };
+      return [];
     }
 
-    // 🔧 استخراج المنتجات
+    // تحويل النتائج إلى تنسيق موحد
     const products = data.result.map((p) => ({
       id: p.product_id || p.item_id,
       title: p.product_title,
@@ -39,11 +38,12 @@ async function fetchProducts(keyword = "phone") {
       url: p.product_detail_url,
     }));
 
-    return { success: true, products };
+    return products;
   } catch (error) {
     console.error("❌ fetchProducts error:", error);
-    return { success: false, message: error.message, products: [] };
+    return [];
   }
 }
 
 export default fetchProducts;
+
