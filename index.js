@@ -1,41 +1,30 @@
 
-import fetch from "node-fetch";
+import express from "express";
+import cors from "cors";
 import dotenv from "dotenv";
+import fetchProducts from "./fetchProducts.js";
 
 dotenv.config();
 
-async function fetchProducts(keyword = "phone") {
-  try {
-    const url = `https://aliexpress-datahub.p.rapidapi.com/item_search?query=${encodeURIComponent(keyword)}&page=1`;
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "x-rapidapi-host": "aliexpress-datahub.p.rapidapi.com",
-        "x-rapidapi-key": process.env.RAPIDAPI_KEY,
-      },
-    });
+app.use(cors());
+app.use(express.json());
 
-    const data = await response.json();
+// 🔍 اختبار API
+app.get("/", (req, res) => {
+  res.json({ message: "Dealify server is running 🚀" });
+});
 
-    if (!data || !data.result || !data.result.items) {
-      return { success: false, message: "No products found", products: [] };
-    }
+// 🔎 جلب المنتجات
+app.get("/api/products", async (req, res) => {
+  const keyword = req.query.keyword || "phone";
+  const data = await fetchProducts(keyword);
+  res.json(data);
+});
 
-    const products = data.result.items.map((item) => ({
-      id: item.item_id,
-      title: item.title,
-      price: item.sale_price,
-      image: item.image,
-      url: item.detail_url,
-    }));
-
-    return { success: true, products };
-  } catch (error) {
-    console.error("Error fetching products:", error);
-    return { success: false, message: error.message, products: [] };
-  }
-}
-
-// ✅ هذا السطر هو المهم لتفادي الخطأ
-export default fetchProducts;
+// ✅ استماع على Render
+app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
+});
